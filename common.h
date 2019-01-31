@@ -17,6 +17,8 @@ terminal_arg* allocate_term_arg(int len_temp_command);
 void destroy_term_arg(terminal_arg* term);
 char** get_token(char* command , int length_command , int num_token);
 void clean_term();
+void custom_execvp(char** token , pid_t child);
+int do_custom_execvp(char** token , char* command_separator , pid_t child);
 
 
 //take command in input
@@ -79,4 +81,71 @@ char** get_token(char* command , int length_command , int num_token){
 
 void clean_term(){
 	printf("\33c\e[3J");
+}
+
+void custom_execvp(char** token , pid_t child){
+	int i = 0;
+	char* command_separator = "";
+	while(token[i] != NULL){
+		if(strcmp(token[i] , "&&") == 0){
+			command_separator = "&&";
+			if(do_custom_execvp(token , command_separator , child) == -1){
+				kill(child , SIGKILL);
+				return;
+			}
+			
+		}
+		else if(strcmp(token[i] , "||") == 0){
+			command_separator = "||";
+		}
+		i++;
+	}
+	execvp(token[0] , token);
+	return;
+}
+
+int do_custom_execvp(char** token , char* command_separator , pid_t child){
+	int i = 0;
+	int j = 0;
+	while(strcmp(token[i],command_separator) != 0){
+		i++;
+	}
+	while(token[j+i] != NULL){
+		j++;
+	}
+	char** token_first_half = malloc((i+1)*sizeof(char*));
+	char** token_second_half = malloc(j*sizeof(char*));
+	memcpy(token_first_half , token , i*sizeof(char*));
+	memcpy(token_second_half , token + i + 1 ,j*sizeof(char*));
+	token_first_half[i] = NULL;
+
+	pid_t pid_e = fork();
+	if(pid_e == -1){
+		free(token_first_half);
+		free(token_second_half);
+		handle_error("Error");
+	}
+	else if(pid_e == 0){
+		if(execvp(token_first_half[0],token_first_half) == -1){
+			free(token_first_half);
+			free(token_second_half);
+			return -1;
+		}
+		handle_error("Error");
+	}
+	else{
+		int status_e;	
+		int padre_e = wait(&status_e);
+		if(padre_e == -1){
+			free(token_first_half);
+			free(token_second_half);
+			handle_error("Error");
+		}
+
+		
+	}
+	free(token_first_half);
+	custom_execvp(token_second_half , child);
+	free(token_second_half);
+	return 0;
 }

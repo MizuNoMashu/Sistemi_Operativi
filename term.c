@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <assert.h>
 
 #include "common.h"
 
@@ -36,6 +37,7 @@ int main(int argc, char const *argv[]){
 			free(temp_command);	
 			destroy_term_arg(term);
 			free(token);
+			printf("Term: ");
 			temp_command = get_command();
 			term = allocate_term_arg(strlen(temp_command));
 			strncpy(term->command , temp_command , sizeof(char)*strlen(temp_command));
@@ -53,13 +55,12 @@ int main(int argc, char const *argv[]){
 			handle_error("Errore nella vfork");
 		}
 		else if(terminale == 0){
-			if(execvp(token[0] , token) == -1){
-				free(temp_command);	
-				destroy_term_arg(term);
-				free(token);
-				handle_error("Error");	
-			}
-			_exit(EXIT_SUCCESS);
+			pid_t child = getpid();
+			custom_execvp(token , child);
+			free(temp_command);	
+			destroy_term_arg(term);
+			free(token);
+			handle_error("Error");	
 		}
 		else{
 			int terminale_padre = wait(&status);
@@ -68,6 +69,7 @@ int main(int argc, char const *argv[]){
 				destroy_term_arg(term);
 				free(token);
 			}
+
 		}
 		free(temp_command);	
 		destroy_term_arg(term);
