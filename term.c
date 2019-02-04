@@ -20,7 +20,7 @@ int main(int argc, char const *argv[]){
 		//take command
 		temp_command = get_command();
 		if(temp_command == NULL){
-			handle_error("oi");
+			handle_error("Error:");
 		}
 
 		//allocate struct

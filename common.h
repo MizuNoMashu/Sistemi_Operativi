@@ -4,6 +4,7 @@
 
 char* temp_command;
 
+//struct to controll the terminal
 typedef struct term_arg{
 	char* command;
 	int length_command;
@@ -79,18 +80,21 @@ char** get_token(char* command , int length_command , int num_token){
 	return token;
 }
 
+//clear the terminal
 void clean_term(){
 	printf("\33c\e[3J");
 }
 
+//make do_custom_execvp to controll more cases
 void custom_execvp(char** token , pid_t child){
 	int i = 0;
+	int check = 0;
 	char* command_separator = "";
 	while(token[i] != NULL){
 		if(strcmp(token[i] , "&&") == 0){
 			command_separator = "&&";
-			if(do_custom_execvp(token , command_separator , child) == -1){
-				kill(child , SIGKILL);
+			check = do_custom_execvp(token , command_separator , child);
+			if(check == -1){
 				return;
 			}
 			
@@ -100,10 +104,13 @@ void custom_execvp(char** token , pid_t child){
 		}
 		i++;
 	}
-	execvp(token[0] , token);
+	if(check != -1 && command_separator != "&&"){
+		execvp(token[0] , token);
+	}
 	return;
 }
 
+//execute select case from custom_execvp
 int do_custom_execvp(char** token , char* command_separator , pid_t child){
 	int i = 0;
 	int j = 0;
@@ -129,6 +136,9 @@ int do_custom_execvp(char** token , char* command_separator , pid_t child){
 		if(execvp(token_first_half[0],token_first_half) == -1){
 			free(token_first_half);
 			free(token_second_half);
+			if(command_separator == "&&"){
+				kill(getppid() , SIGKILL);
+			}
 			return -1;
 		}
 		handle_error("Error");
@@ -147,5 +157,5 @@ int do_custom_execvp(char** token , char* command_separator , pid_t child){
 	free(token_first_half);
 	custom_execvp(token_second_half , child);
 	free(token_second_half);
-	return 0;
+	return -1;
 }
