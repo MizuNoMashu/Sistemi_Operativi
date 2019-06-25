@@ -56,7 +56,14 @@ int main(int argc, char const *argv[]){
 		}
 		else if(terminale == 0){
 			pid_t child = getpid();
-			custom_execvp(token , child);
+			int n_thread = 0;
+			n_thread = count_ecom(token);
+			if(n_thread != 0){
+				do_custom_execvp_ecom(token , child , n_thread);
+			}
+			else{
+				custom_execvp(token , child);
+			}
 			free(temp_command);	
 			destroy_term_arg(term);
 			free(token);

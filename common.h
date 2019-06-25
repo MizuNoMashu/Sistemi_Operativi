@@ -20,7 +20,8 @@ char** get_token(char* command , int length_command , int num_token);
 void clean_term();
 void custom_execvp(char** token , pid_t child);
 int do_custom_execvp(char** token , char* command_separator , pid_t child);
-
+int count_ecom(char** token);
+void custom_execvp_ecom(char** token , pid_t child , int n_thread);
 
 //take command in input
 char* get_command(){ 
@@ -80,6 +81,19 @@ char** get_token(char* command , int length_command , int num_token){
 	return token;
 }
 
+//count number of & to make n+1 thread
+int count_ecom(char** token){
+	int i = 0;
+	int n_thread = 0;
+	while(token[i] != NULL){
+		if(strcmp(token[i], "&") == 0){
+			n_thread++;
+		}
+		i++;
+	}
+	return n_thread;
+}
+
 //clear the terminal
 void clean_term(){
 	printf("\33c\e[3J");
@@ -107,6 +121,38 @@ void custom_execvp(char** token , pid_t child){
 	if(check != -1 && command_separator != "&&"){
 		execvp(token[0] , token);
 	}
+	return;
+}
+
+void do_custom_execvp_ecom(char** token , pid_t child , int n_thread){
+	int i = 0;
+	int j = 0;
+	while(strcmp(token[i],"&") != 0){
+		i++;
+	}
+	while(token[j+i] != NULL){
+		j++;
+	}
+	char** token_first_half = malloc((i+1)*sizeof(char*));
+	char** token_second_half = malloc(j*sizeof(char*));
+	memcpy(token_first_half , token , i*sizeof(char*));
+	memcpy(token_second_half , token + i + 1 ,j*sizeof(char*));
+	pid_t pid_ecom = fork();
+	if(pid_ecom == -1){
+		free(token_first_half);
+		free(token_second_half);
+		handle_error("Error");
+	}
+	else if(pid_ecom == 0){
+		custom_execvp(token_first_half , child);
+	}
+			if(n_thread == 1){
+				custom_execvp(token_second_half , child);
+			}
+			else if(n_thread != 1){
+				do_custom_execvp_ecom(token_second_half , child , n_thread-1);
+			}
+
 	return;
 }
 
