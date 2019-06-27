@@ -115,6 +115,10 @@ void custom_execvp(char** token , pid_t child){
 		}
 		else if(strcmp(token[i] , "||") == 0){
 			command_separator = "||";
+			check = do_custom_execvp(token , command_separator , child);
+			if(check == 0){
+				return;
+			}
 		}
 		i++;
 	}
@@ -145,14 +149,18 @@ void do_custom_execvp_ecom(char** token , pid_t child , int n_thread){
 	}
 	else if(pid_ecom == 0){
 		custom_execvp(token_first_half , child);
+		free(token_first_half);
 	}
-			if(n_thread == 1){
+	else{
+		if(n_thread == 1){
 				custom_execvp(token_second_half , child);
+				free(token_second_half);
 			}
-			else if(n_thread != 1){
-				do_custom_execvp_ecom(token_second_half , child , n_thread-1);
+			else if(n_thread > 1){
+				do_custom_execvp_ecom(token_second_half , child , n_thread--);
+				free(token_second_half);
 			}
-
+	}		
 	return;
 }
 
@@ -160,6 +168,7 @@ void do_custom_execvp_ecom(char** token , pid_t child , int n_thread){
 int do_custom_execvp(char** token , char* command_separator , pid_t child){
 	int i = 0;
 	int j = 0;
+	int exec_ret = 0;
 	while(strcmp(token[i],command_separator) != 0){
 		i++;
 	}
@@ -179,19 +188,28 @@ int do_custom_execvp(char** token , char* command_separator , pid_t child){
 		handle_error("Error");
 	}
 	else if(pid_e == 0){
-		if(execvp(token_first_half[0],token_first_half) == -1){
+		exec_ret = execvp(token_first_half[0],token_first_half);
+		if(exec_ret == -1){
 			free(token_first_half);
-			free(token_second_half);
 			if(command_separator == "&&"){
+				free(token_second_half);
 				kill(getppid() , SIGKILL);
 			}
-			return -1;
+			else if(command_separator == "||"){
+				custom_execvp(token_second_half , child);
+			}
+			return exec_ret;
 		}
 		handle_error("Error");
 	}
 	else{
 		int status_e;	
 		int padre_e = wait(&status_e);
+		if(command_separator == "||" && !exec_ret){
+			free(token_first_half);
+			free(token_second_half);
+			kill(child , SIGKILL);
+		}
 		if(padre_e == -1){
 			free(token_first_half);
 			free(token_second_half);
