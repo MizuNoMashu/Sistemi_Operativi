@@ -16,7 +16,9 @@ int main(int argc, char const *argv[]){
 	clean_term();
 
 	while(1){
-		printf("Term: ");
+		char cwd[300];
+		getcwd(cwd , sizeof(cwd));
+		printf("%sTerm%s:%s~%s%s$ " , "\x1B[32m", "\x1B[0m" , "\x1B[34m", cwd , "\x1B[0m");
 		//take command
 		temp_command = get_command();
 		if(temp_command == NULL){
