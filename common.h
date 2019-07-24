@@ -1,6 +1,6 @@
 #define handle_error(msg)           do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
-#define MAX_STR 256
+#define MAX_STR 1000
 
 char* temp_command;
 
@@ -26,10 +26,15 @@ void custom_execvp_ecom(char** token , pid_t child , int n_thread);
 //take command in input
 char* get_command(){ 
 	char buf[MAX_STR];
-	if(fgets(buf , sizeof(buf) , stdin) == NULL){ //check if some command was written
+	char* cmd;
+	cmd = readline("\nCommand: "); //get current command
+	if(cmd == NULL){
 		return NULL;
 	}
-	return strdup(buf); //return only used memory
+	else{
+		strcpy(buf , cmd);
+		return strdup(buf); //return only used memory
+	}
 }
 
 
@@ -96,7 +101,7 @@ int count_ecom(char** token){
 
 //clear the terminal
 void clean_term(){
-	printf("\33c\e[3J");
+	printf("\033[H\033[J");
 }
 
 //make do_custom_execvp to controll more cases
@@ -124,6 +129,7 @@ void custom_execvp(char** token , pid_t child){
 	}
 	if(check != -1 && command_separator != "&&"){
 		execvp(token[0] , token);
+		fprintf(stderr, "%s Comando non disponibile\n", token[0]);
 	}
 	return;
 }
@@ -190,6 +196,7 @@ int do_custom_execvp(char** token , char* command_separator , pid_t child){
 	else if(pid_e == 0){
 		exec_ret = execvp(token_first_half[0],token_first_half);
 		if(exec_ret == -1){
+			fprintf(stderr, "%s Comando non disponibile\n", token_first_half[0]);
 			free(token_first_half);
 			if(command_separator == "&&"){
 				free(token_second_half);

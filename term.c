@@ -5,7 +5,8 @@
 #include <errno.h>
 #include <string.h>
 #include <assert.h>
-
+#include<readline/readline.h> 
+	
 #include "common.h"
 
 int status;
@@ -14,11 +15,10 @@ pid_t terminale;
 int main(int argc, char const *argv[]){
 	
 	clean_term();
-
 	while(1){
 		char cwd[300];
 		getcwd(cwd , sizeof(cwd));
-		printf("%sTerm%s:%s~%s%s$ " , "\x1B[32m", "\x1B[0m" , "\x1B[34m", cwd , "\x1B[0m");
+		printf("%sLocation%s:%s~%s%s" , "\x1B[32m", "\x1B[0m" , "\x1B[34m", cwd , "\x1B[0m");
 		//take command
 		temp_command = get_command();
 		if(temp_command == NULL){
@@ -39,7 +39,7 @@ int main(int argc, char const *argv[]){
 			free(temp_command);	
 			destroy_term_arg(term);
 			free(token);
-			printf("Term: ");
+			printf("%sLocation%s:%s~%s%s" , "\x1B[32m", "\x1B[0m" , "\x1B[34m", cwd , "\x1B[0m");
 			temp_command = get_command();
 			term = allocate_term_arg(strlen(temp_command));
 			strncpy(term->command , temp_command , sizeof(char)*strlen(temp_command));
@@ -54,9 +54,10 @@ int main(int argc, char const *argv[]){
 			free(temp_command);	
 			destroy_term_arg(term);
 			free(token);
-			handle_error("Errore nella vfork");
+			handle_error("Errore nella fork");
 		}
 		else if(terminale == 0){
+
 			pid_t child = getpid();
 			int n_thread = 0;
 			n_thread = count_ecom(token);
@@ -69,7 +70,7 @@ int main(int argc, char const *argv[]){
 			free(temp_command);	
 			destroy_term_arg(term);
 			free(token);
-			handle_error("Error");	
+			exit(EXIT_FAILURE); 
 		}
 		else{
 			int terminale_padre = wait(&status);
