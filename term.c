@@ -1,14 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <assert.h>
-#include <readline/readline.h> 
-	
-#include "common.h"
 
+#include "common.h"
+#include "command.h"
+#include "execution.h"
 int status;
 pid_t terminale;
 
