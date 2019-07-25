@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <string.h>
 #include <assert.h>
-#include<readline/readline.h> 
+#include <readline/readline.h> 
 	
 #include "common.h"
 
@@ -61,12 +61,14 @@ int main(int argc, char const *argv[]){
 			pid_t child = getpid();
 			int n_thread = 0;
 			n_thread = count_ecom(token);
+			
 			if(n_thread != 0){
 				do_custom_execvp_ecom(token , child , n_thread);
 			}
 			else{
 				custom_execvp(token , child);
 			}
+			
 			free(temp_command);	
 			destroy_term_arg(term);
 			free(token);
