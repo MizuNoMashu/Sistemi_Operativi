@@ -1,6 +1,6 @@
 
-output: term.o common.o command.o execution.o
-	gcc -o Term term.o common.o command.o execution.o  -lreadline
+output: term.o common.o command.o execution.o signal.o
+	gcc -o Term term.o common.o command.o execution.o signal.o -lreadline
 
 term.o: term.c
 	gcc -c term.c 
@@ -13,6 +13,9 @@ command.o: command.c command.h
 
 execution.o: execution.c execution.h command.h common.h
 	gcc -c execution.c
+
+signal.o: signal.c signal.h
+	gcc -c signal.c
 
 clean:
 	rm *.o Term

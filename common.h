@@ -4,5 +4,5 @@
 #define COMMON
 
 void clean_term();
-
+void location();
 #endif

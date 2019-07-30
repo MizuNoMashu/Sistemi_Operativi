@@ -1,18 +1,23 @@
 #include <stdlib.h>
 #include <readline/readline.h> 
+#include <readline/history.h>
 
+#include "common.h"
 #include "command.h"
 
 //take command in input
 char* get_command(){ 
 	char buf[MAX_STR];
 	char* cmd;
-	cmd = readline("\nCommand: "); //get current command
+	location();
+	cmd = readline("Command: "); //get current command
 	if(cmd == NULL){
+		free(cmd);
 		return NULL;
 	}
 	else{
 		strcpy(buf , cmd);
+		free(cmd);
 		return strdup(buf); //return only used memory
 	}
 }

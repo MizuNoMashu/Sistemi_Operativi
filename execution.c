@@ -39,6 +39,7 @@ void custom_execvp(char** token , pid_t child){
 	if(check != -1 && command_separator != "&&"){
 		execvp(token[0] , token);
 		fprintf(stderr, "%s Comando non disponibile\n", token[0]);
+		return;
 	}
 	return;
 }
