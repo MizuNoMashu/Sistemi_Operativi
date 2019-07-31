@@ -11,7 +11,7 @@ char* get_command(){
 	char* cmd;
 	location();
 	cmd = readline("Command: "); //get current command
-	if(cmd == NULL){
+	if(!cmd[0]){
 		free(cmd);
 		return NULL;
 	}
@@ -31,7 +31,7 @@ int get_num_token(char* command){
 		array_token[j] = NULL;
 	}
 	int i = 0;
-	array_token[MAX_STR] = strtok(command , " \t\n"); //dato command lo filtra in base a " " \t e \n
+	array_token[MAX_STR] = strtok(command , " \t\n"); //get the command and filter with " " "\t" "\n"
 	while((array_token[i++] = strtok(NULL , " \t\n")) != NULL);
 	return i;
 }

@@ -17,7 +17,7 @@ void custom_execvp(char** token , pid_t child){
 		if(strcmp(token[i] , "&&") == 0){
 			command_separator = "&&";
 			check = do_custom_execvp(token , command_separator , child);
-			if(check == -1){ // in caso il comando a sinistra del && va in errore esci
+			if(check == -1){ // in case left command get error return
 				return;
 			}
 			
@@ -26,7 +26,7 @@ void custom_execvp(char** token , pid_t child){
 		else if(strcmp(token[i] , "||") == 0){
 			command_separator = "||";
 			check = do_custom_execvp(token , command_separator , child);
-			if(check == 0){ // in caso il comando a sinistra del || viene eseguito esci
+			if(check == 0){ // in case left command get exec return
 				return;
 			}
 		}

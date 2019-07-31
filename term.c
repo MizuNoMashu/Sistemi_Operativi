@@ -4,6 +4,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <readline/readline.h>
 
 #include "common.h"
 #include "command.h"
@@ -11,9 +12,9 @@
 #include "signal.h"
 
 int status;
-pid_t terminale;
+pid_t terminal;
 struct sigaction sig;
-
+struct sigaction sig_less;
 
 int main(int argc, char const *argv[]){
 	
@@ -23,14 +24,23 @@ int main(int argc, char const *argv[]){
 
 	while(1){
 
+		exit_count = 3;
+
 		sig.sa_handler = &handle_signal;
 		sig.sa_flags = SA_RESTART;
+		sig_less.sa_handler = &handle_signal_less;
+
+		if(sigaction( SIGINT , &sig_less , NULL) == -1){
+			handle_error("Error in SIGINT");
+		}
+		
+		controll_keyboard();
 
 		//take command
 		temp_command = get_command();
 		if(temp_command == NULL){
 			free(temp_command);
-			handle_error("Error:");
+			continue;
 		} 
 
 		//allocate struct
@@ -53,14 +63,14 @@ int main(int argc, char const *argv[]){
 		
 		free(temp_command);
 
-		terminale = fork();
+		terminal = fork();
 
-		if(terminale == -1 ){
+		if(terminal == -1 ){
 			destroy_term_arg(term);
 			free(token);
 			handle_error("Errore nella fork");
 		}
-		else if(terminale == 0){
+		else if(terminal == 0){
 			pid_t child = getpid();
 			
 			int n_thread = 0;
@@ -86,10 +96,10 @@ int main(int argc, char const *argv[]){
 				printf("Error SIGCHLD\n");
 			}
 
-			int terminale_padre = wait(&status);
+			int terminal_father = wait(&status);
 			// if(terminale_padre == -1){
 			// }
-			kill(terminale , SIGKILL);
+			kill(terminal , SIGKILL);
 		}
 
 		destroy_term_arg(term);
