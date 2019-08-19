@@ -13,7 +13,7 @@ typedef struct term_arg{
 }terminal_arg;
 
 
-char* get_command();
+char* get_command(FILE* history);
 int get_num_token(char* command);
 int count_ecom(char** token);
 terminal_arg* allocate_term_arg(int len_temp_command);

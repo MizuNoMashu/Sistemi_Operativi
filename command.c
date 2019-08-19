@@ -6,7 +6,7 @@
 #include "command.h"
 
 //take command in input
-char* get_command(){ 
+char* get_command(FILE* history){ 
 	char buf[MAX_STR];
 	char* cmd;
 	location();
@@ -17,6 +17,8 @@ char* get_command(){
 	}
 	else{
 		strcpy(buf , cmd);
+		fprintf(history, "%s\n", cmd);
+		fclose(history);
 		free(cmd);
 		return strdup(buf); //return only used memory
 	}

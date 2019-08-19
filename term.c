@@ -17,14 +17,19 @@ struct sigaction sig;
 struct sigaction sig_less;
 
 int main(int argc, char const *argv[]){
-	
+	history = fopen(".history.txt" , "w+");
+	fprintf(history, "\n");
+	fclose(history);
 	clean_term();
 	
 	char** token;
 
 	while(1){
-
+		history = fopen(".history.txt" , "a+");
+		
 		exit_count = 3;
+		up_or_down = 0;
+		state = 0;
 
 		sig.sa_handler = &handle_signal;
 		sig.sa_flags = SA_RESTART;
@@ -37,7 +42,7 @@ int main(int argc, char const *argv[]){
 		controll_keyboard();
 
 		//take command
-		temp_command = get_command();
+		temp_command = get_command(history);
 		if(temp_command == NULL){
 			free(temp_command);
 			continue;
