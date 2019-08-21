@@ -81,8 +81,14 @@ int main(int argc, char const *argv[]){
 			int n_thread = 0;
 			n_thread = count_ecom(token);
 			
+			int n_pipe = 0;
+			n_pipe = count_pipe(token);
+
 			if(n_thread != 0){
 				do_custom_execvp_ecom(token , child , n_thread);
+			}
+			else if(n_pipe != 0){
+				do_custom_execvp_pipe(token , n_pipe , STDIN_FILENO , 0);
 			}
 			else{
 				custom_execvp(token , child);

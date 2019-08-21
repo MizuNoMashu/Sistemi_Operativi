@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "command.h"
 #include "execution.h"
@@ -69,6 +70,7 @@ void do_custom_execvp_semicolon(char** token , pid_t child){
 		free(token_first_half);
 	}
 	else{
+		int status_semicolon;
 		int father = wait(&status_semicolon);
 		if(father == -1){
 				return;
@@ -175,4 +177,75 @@ int do_custom_execvp(char** token , char* command_separator , pid_t child){
 	custom_execvp(token_second_half , child);
 	free(token_second_half);
 	return -1;
+}
+
+void do_custom_execvp_pipe(char** token , int n_pipe , int pipe_fd , int last_pipe){
+	
+	int i = 0;
+	int j = 0;
+
+	if(last_pipe == 1 && n_pipe == 1){
+		if(pipe_fd != STDIN_FILENO){
+		    if(dup2(pipe_fd, STDIN_FILENO) != -1){
+		    	close(pipe_fd);
+		    }
+		    else{
+		    	handle_error("Error write");
+		    }
+		}
+		custom_execvp(token , 0);
+		free(token);
+		return;
+	}
+
+	while(strcmp(token[i],"|") != 0){
+		i++;
+	}
+	while(token[j+i] != NULL){
+		j++;
+	}
+	char** token_first_half = malloc((i+1)*sizeof(char*));
+	char** token_second_half = malloc(j*sizeof(char*));
+	memcpy(token_first_half , token , i*sizeof(char*));
+	memcpy(token_second_half , token + i + 1 ,j*sizeof(char*));
+	token_first_half[i] = NULL;
+
+	int pipefd[2];
+	pipe(pipefd);
+
+	pid_t pid_pipe = fork();
+	if(pid_pipe == -1){
+		free(token_first_half);
+		free(token_second_half);
+		handle_error("Error");
+	}
+	else if(pid_pipe == 0){
+ 		if(dup2(pipe_fd , STDIN_FILENO) == -1){
+ 			handle_error("Error read");
+ 		}
+        if(dup2(pipefd[1] , STDOUT_FILENO) == -1){
+        	handle_error("Error write");
+        }
+        if(close(pipefd[1]) == -1){
+        	handle_error("Error");
+        }
+		custom_execvp(token_first_half , 0);
+		free(token_first_half);
+	}
+	else{
+		if(n_pipe == 1){
+			if(close(pipefd[1]) == -1 || close(pipe_fd) == -1){
+				handle_error("Error");
+			}
+			do_custom_execvp_pipe(token_second_half , n_pipe , pipefd[0] , 1);
+			free(token_second_half);
+		}
+		else{
+        	if(close(pipefd[1]) == -1 || close(pipe_fd) == -1){
+				handle_error("Error");
+			}
+			do_custom_execvp_pipe(token_second_half , --n_pipe , pipefd[0] , 0);
+			free(token_second_half);
+		}
+	}
 }

@@ -85,3 +85,15 @@ int count_ecom(char** token){
 	}
 	return n_thread;
 }
+
+int count_pipe(char** token){
+	int i = 0;
+	int n_pipe = 0;
+	while(token[i] != NULL){
+		if(strcmp(token[i] , "|") == 0){
+			n_pipe++;
+		}
+		i++;
+	}
+	return n_pipe;
+}

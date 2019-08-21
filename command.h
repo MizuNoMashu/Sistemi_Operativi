@@ -19,5 +19,5 @@ int count_ecom(char** token);
 terminal_arg* allocate_term_arg(int len_temp_command);
 void destroy_term_arg(terminal_arg* term);
 char** get_token(char* command , int length_command , int num_token);
-
+int count_pipe(char** token);
 #endif
