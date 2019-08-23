@@ -85,13 +85,13 @@ int main(int argc, char const *argv[]){
 			n_pipe = count_pipe(token);
 
 			if(n_thread != 0){
-				do_custom_execvp_ecom(token , child , n_thread);
+				do_custom_execvp_ecom(token , child , n_thread , n_pipe , 0);
 			}
 			else if(n_pipe != 0){
-				do_custom_execvp_pipe(token , n_pipe , STDIN_FILENO , 0);
+				do_custom_execvp_pipe(token , n_pipe , STDIN_FILENO , 0 , child);
 			}
 			else{
-				custom_execvp(token , child);
+				custom_execvp(token , child , n_pipe , n_thread , 0);
 			}
 			destroy_term_arg(term);
 			free(token);

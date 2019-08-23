@@ -17,9 +17,10 @@ void clean_term(){
 
 
 void location(){
-	char cwd[300];
-	getcwd(cwd , sizeof(cwd));
+	char* cwd = malloc((300) * sizeof(char));
+	getcwd(cwd , 300);
 	printf("%sLocation%s:%s~%s%s\n" , "\x1B[32m", "\x1B[0m" , "\x1B[34m", cwd , "\x1B[0m");
+	free(cwd);
 }
 
 void exiting(){
@@ -89,7 +90,7 @@ void keydown(){
 	}
 	state = 0;
 	fseek(history , i+2 , SEEK_END);
-	char s[30];
-	fgets(s , 30 , history);
+	char s[1000];
+	fgets(s , 1000 , history);
 	rl_insert_text(strtok(s,"\n"));
 }
