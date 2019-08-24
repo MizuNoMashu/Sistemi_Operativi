@@ -46,14 +46,25 @@ void custom_execvp(char** token , pid_t child , int n_pipe , int n_thread , int 
 			do_custom_execvp_semicolon(token , child);
 			return;
 		}
+
 		else if(strcmp(token[i] , ">") == 0){
-			do_custom_execvp_redirect(token);
+			command_separator = ">";
+			do_custom_execvp_redirect(token , command_separator , child , n_thread , n_pipe , still_good);
 			return;
 		}
-		// else if(strcmp(token[i] , "&") == 0){
-		// 	do_custom_execvp_ecom(token , child , n_thread , n_pipe , still_good);
-		// 	return;	
-		// }
+
+		else if(strcmp(token[i] , ">>") == 0){
+			command_separator = ">>";
+			do_custom_execvp_redirect(token , command_separator , child , n_thread , n_pipe , still_good);
+			return;
+		}
+
+		else if(strcmp(token[i] , "<") == 0){
+			command_separator = "<";
+			do_custom_execvp_redirect(token , command_separator , child , n_thread , n_pipe , still_good);
+			return;
+		}
+
 		i++;
 	}
 	execvp(token[0] , token);
@@ -240,6 +251,7 @@ void do_custom_execvp_ecom(char** token , pid_t child , int n_thread , int n_pip
 		free(token_second_half);
 	}
 	else{
+		free(token_first_half);
 		if(n_thread == 1){
 			custom_execvp(token_second_half , child , n_pipe , n_thread , still_good);
 			free(token_second_half);
@@ -323,10 +335,13 @@ void do_custom_execvp_pipe(char** token , int n_pipe , int pipe_fd , int last_pi
 	}
 }
 
-void do_custom_execvp_redirect(char** token){
+//this function is to handle input and output redirect
+void do_custom_execvp_redirect(char** token , char* command_separator , pid_t child , int n_thread , int n_pipe , int still_good){
 	int i = 0;
 	int j = 0;
-	while(strcmp(token[i],">") != 0){
+	int status_redirect;
+
+	while(strcmp(token[i], command_separator ) != 0){
 		i++;
 	}
 	while(token[j+i] != NULL){
@@ -337,20 +352,35 @@ void do_custom_execvp_redirect(char** token){
 	memcpy(token_first_half , token , i*sizeof(char*));
 	memcpy(token_second_half , token + i + 1 ,j*sizeof(char*));
 	token_first_half[i] = NULL;
+	
 	pid_t pid_redirect = fork();
+	
 	if(pid_redirect == -1){
 		free(token_first_half);
 		free(token_second_half);
 		handle_error("Error");
 	}
 	else if(pid_redirect == 0){
-		int fd1 = creat(token_second_half[0] , 0644);
-		dup2(fd1 , STDOUT_FILENO);
-		close(fd1);
-		custom_execvp(token_first_half , 0 , 0 , 0 , 0);
+		if(command_separator == ">"){
+			int fd1 = creat(token_second_half[0] , 0644);
+			dup2(fd1 , STDOUT_FILENO);
+			close(fd1);
+			custom_execvp(token_first_half , child , n_pipe , n_thread , still_good);
+		}
+		else if(command_separator == ">>"){
+			int fd2 = open(token_second_half[0] , O_CREAT | O_WRONLY | O_APPEND , 0644);
+			dup2(fd2 , STDOUT_FILENO);
+			close(fd2);
+			custom_execvp(token_first_half , child , n_pipe , n_thread , still_good);
+		}
+		else if(command_separator == "<"){
+			int fd3 = open(token_second_half[0] , O_RDONLY , 0);
+			dup2(fd3 , STDIN_FILENO);
+			close(fd3);
+			custom_execvp(token_first_half , child , n_pipe , n_thread , still_good);
+		}
 	}
 	else{
-		int status;
-		wait(&status);
+		waitpid(pid_redirect , &status_redirect , 0);
 	}
 }
