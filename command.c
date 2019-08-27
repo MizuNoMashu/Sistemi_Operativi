@@ -57,17 +57,31 @@ void destroy_term_arg(terminal_arg* term){
 
 //get token and insert into array of string
 char** get_token(char* command , int length_command , int num_token){
-	int i = 1 , j = 0;
-	char** token = malloc((num_token+1) *sizeof(char*));
+	int i = 0 , j = 0;
+	char** token = malloc(((num_token*2)+1) *sizeof(char*));
 	if(token == NULL){
 		return NULL;
 	}
 	for(j ; j < num_token ; j++){
 		token[j] = NULL;
 	}
-	token[0] = strtok(command, " \t\n");
+	// token[0] = strtok(command, " \t\n");
 	for(i ; i < num_token ; i++){
-		token[i] = strtok(NULL , " \t\n");
+		if(i == 0){
+			token[i] = strtok(command, " \t\n");
+		}
+		else{
+			token[i] = strtok(NULL , " \t\n");
+		}
+		if(strcmp(token[i] , "&&") == 0 || strcmp(token[i] , "||") == 0 || strcmp(token[i] , "|") == 0 || strcmp(token[i] , "&") == 0){
+			continue;
+		}
+		char* temp_system = (char*) malloc(1+strlen(". /home/mizunomashu/Desktop/Sistemi_Operativi_prove/copia_progetto/.my_bashrc.sh ; ") + strlen(token[i]) + strlen(" 2> /dev/null 1> /dev/null"));
+		strcpy(temp_system , ". /home/mizunomashu/Desktop/Sistemi_Operativi_prove/copia_progetto/.my_bashrc.sh ; ");
+		strcat(temp_system , token[i]);
+		strcat(temp_system , " 2> /dev/null 1> /dev/null");
+		system(temp_system);
+		free(temp_system);
 	}
 	token[num_token] = NULL;
 	return token;

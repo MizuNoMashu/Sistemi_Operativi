@@ -23,7 +23,7 @@ int main(int argc, char const *argv[]){
 	clean_term();
 	
 	char** token;
-
+	
 	while(1){
 		history = fopen(".history.txt" , "a+");
 		
