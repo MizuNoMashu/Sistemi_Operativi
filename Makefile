@@ -18,4 +18,4 @@ signal.o: signal.c signal.h
 	gcc -c signal.c
 
 clean:
-	rm -f *.o Term .history.txt
+	rm -f *.o Term .history.txt .temp_bashrc

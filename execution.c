@@ -211,8 +211,10 @@ void do_custom_execvp_semicolon(char** token , pid_t child){
 	else if(pid_semicolon == 0){
 		custom_execvp(token_first_half , child , 0 , 0 , 0);
 		free(token_first_half);
+		free(token_second_half);
 	}
 	else{
+		free(token_first_half);
 		int status_semicolon;
 		int father = wait(&status_semicolon);
 		if(father == -1){
@@ -318,6 +320,7 @@ void do_custom_execvp_pipe(char** token , int n_pipe , int pipe_fd , int last_pi
 		free(token_first_half);
 	}
 	else{
+		free(token_first_half);
 		if(n_pipe == 1){
 			if(close(pipefd[1]) == -1 || close(pipe_fd) == -1){
 				handle_error("Error");

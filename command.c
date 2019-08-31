@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <readline/readline.h> 
 #include <readline/history.h>
+#include <unistd.h>
 
 #include "common.h"
 #include "command.h"
@@ -58,32 +59,78 @@ void destroy_term_arg(terminal_arg* term){
 //get token and insert into array of string
 char** get_token(char* command , int length_command , int num_token){
 	int i = 0 , j = 0;
-	char** token = malloc(((num_token*2)+1) *sizeof(char*));
+	char** token = malloc((MAX_STR)*sizeof(char*));
+	char* save_token;
+	int expand_alias = 0;
 	if(token == NULL){
 		return NULL;
 	}
-	for(j ; j < num_token ; j++){
+	for(j ; j < MAX_STR ; j++){
 		token[j] = NULL;
 	}
 	// token[0] = strtok(command, " \t\n");
 	for(i ; i < num_token ; i++){
 		if(i == 0){
-			token[i] = strtok(command, " \t\n");
+			token[i] = strtok_r(command, " \t\n" , &save_token);
 		}
 		else{
-			token[i] = strtok(NULL , " \t\n");
+			token[i] = strtok_r(NULL , " \t\n" , &save_token);
 		}
-		if(strcmp(token[i] , "&&") == 0 || strcmp(token[i] , "||") == 0 || strcmp(token[i] , "|") == 0 || strcmp(token[i] , "&") == 0){
+		
+		if(strcmp(token[i] , "mkdir") == 0 || strcmp(token[i] , "touch") == 0 || strcmp(token[i] , "rm") == 0 || strcmp(token[i] , "cd") == 0){
+			expand_alias = 1;
+		}
+
+		if(strcmp(token[i] , "&&") == 0 || strcmp(token[i] , "||") == 0 || strcmp(token[i] , "|") == 0 
+			|| strcmp(token[i] , "&") == 0 || strcmp(token[i] , ">") == 0 || strcmp(token[i] , ">>") == 0 
+			|| strcmp(token[i] , "<") == 0){
+			expand_alias = 0;
 			continue;
 		}
-		char* temp_system = (char*) malloc(1+strlen(". /home/mizunomashu/Desktop/Sistemi_Operativi_prove/copia_progetto/.my_bashrc.sh ; ") + strlen(token[i]) + strlen(" 2> /dev/null 1> /dev/null"));
-		strcpy(temp_system , ". /home/mizunomashu/Desktop/Sistemi_Operativi_prove/copia_progetto/.my_bashrc.sh ; ");
+		if(expand_alias != 0){
+			continue;
+		}
+		char* temp_system = malloc(1+strlen("bash /home/mizunomashu/Desktop/Sistemi_Operativi_prove/copia_progetto/.my_bashrc.sh ") + strlen(token[i]) + strlen(" 2> /dev/null"));
+		strcpy(temp_system , "bash /home/mizunomashu/Desktop/Sistemi_Operativi_prove/copia_progetto/.my_bashrc.sh ");
 		strcat(temp_system , token[i]);
-		strcat(temp_system , " 2> /dev/null 1> /dev/null");
-		system(temp_system);
+		strcat(temp_system , " 2> /dev/null");
+		
+		if(system(temp_system) == 512){
+			char* path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi_prove/copia_progetto/.temp_bashrc"));
+			strcpy(path , "/home/");
+			strcat(path , getenv("USERNAME"));
+			strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.temp_bashrc");
+			FILE* system_replace = fopen(path , "r");
+			int k = 0;
+
+			fseek(system_replace , 0L, SEEK_SET);
+			while(fgetc(system_replace) != '\n'){
+				fseek(system_replace , k++ , SEEK_SET);
+			}
+			char* system_replace_command = malloc((k)*sizeof(char));
+
+			fseek(system_replace , 0L, SEEK_SET);
+			fgets(system_replace_command , k , system_replace);
+			fclose(system_replace);
+			free(path);
+
+			char* save_system;
+			token[i] = strtok_r(system_replace_command , " \t\n" , &save_system);
+			while(token[i] != NULL){
+				i++;
+				num_token++;
+				token[i] = strtok_r(NULL , " \t\n" , &save_system);
+			}
+			
+			if(token[i] == NULL){
+				i--;
+				num_token--;
+			}	
+		}
+	
 		free(temp_system);
 	}
-	token[num_token] = NULL;
+	token[MAX_STR-1] = NULL;
 	return token;
 }
 

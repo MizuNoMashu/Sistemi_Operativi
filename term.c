@@ -17,16 +17,26 @@ struct sigaction sig;
 struct sigaction sig_less;
 
 int main(int argc, char const *argv[]){
-	history = fopen(".history.txt" , "w+");
+	char* path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt"));
+	strcpy(path , "/home/");
+	strcat(path , getenv("USERNAME"));
+	strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt");
+	history = fopen(path , "w+");
 	fprintf(history, "\n");
 	fclose(history);
+	free(path);
 	clean_term();
 	
 	char** token;
 	
 	while(1){
-		history = fopen(".history.txt" , "a+");
-		
+		path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt"));
+		strcpy(path , "/home/");
+		strcat(path , getenv("USERNAME"));
+		strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt");
+		history = fopen(path , "a+");
+		free(path);
+
 		exit_count = 3;
 		up_or_down = 0;
 		state = 0;
@@ -59,6 +69,26 @@ int main(int argc, char const *argv[]){
 
 		token = get_token(term->command , term->length_command , term->num_token);
 		
+		if(strcmp(token[0] , "cd") == 0){
+			if(!token[1]){
+				char* path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")));
+				strcpy(path , "/home/");
+				strcat(path , getenv("USERNAME"));
+				chdir(path);
+				free(path);
+			}
+			else{
+				chdir(token[1]);
+			}
+			if(token[2]){
+				printf("Per ora posso solo interpretare cd senza altri comandi vicino\n");
+			}
+			free(temp_command);
+			destroy_term_arg(term);
+			free(token);
+			continue;
+		}
+
 		if(!token[0]){
 			free(temp_command);
 			destroy_term_arg(term);

@@ -7,6 +7,7 @@ int exit_count;
 FILE *history;
 int up_or_down;
 int state;
+
 void clean_term();
 void location();
 void exiting();

@@ -1,13 +1,24 @@
 #!/bin/bash
 
-ciaone () {
-  echo "AAAAAAAA" > .temp_bashrc
-}
-
 la () {
 	echo 'ls -A' > .temp_bashrc
+	return -1
 }
 
 ll () {
-  ls -l "$@"
+  	echo 'ls -l' > .temp_bashrc
+  	return -1
 }
+
+aggiornami () {
+	echo 'sudo apt update && sudo apt upgrade' > .temp_bashrc
+	return -1
+}
+
+if declare -f "$1" > /dev/null
+	then
+		"$@"
+		exit 2
+else
+	exit 1
+fi
