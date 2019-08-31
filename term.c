@@ -17,10 +17,12 @@ struct sigaction sig;
 struct sigaction sig_less;
 
 int main(int argc, char const *argv[]){
-	char* path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt"));
+	// char* path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt"));
+	char* path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi/.history.txt"));
 	strcpy(path , "/home/");
 	strcat(path , getenv("USERNAME"));
-	strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt");
+	// strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt");
+	strcat(path , "/Desktop/Sistemi_Operativi/.history.txt");
 	history = fopen(path , "w+");
 	fprintf(history, "\n");
 	fclose(history);
@@ -30,10 +32,12 @@ int main(int argc, char const *argv[]){
 	char** token;
 	
 	while(1){
-		path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt"));
+		// path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt"));
+		path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi/.history.txt"));
 		strcpy(path , "/home/");
 		strcat(path , getenv("USERNAME"));
-		strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt");
+		// strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt");
+		strcat(path , "/Desktop/Sistemi_Operativi/.history.txt");
 		history = fopen(path , "a+");
 		free(path);
 

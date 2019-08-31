@@ -90,16 +90,22 @@ char** get_token(char* command , int length_command , int num_token){
 		if(expand_alias != 0){
 			continue;
 		}
-		char* temp_system = malloc(1+strlen("bash /home/mizunomashu/Desktop/Sistemi_Operativi_prove/copia_progetto/.my_bashrc.sh ") + strlen(token[i]) + strlen(" 2> /dev/null"));
-		strcpy(temp_system , "bash /home/mizunomashu/Desktop/Sistemi_Operativi_prove/copia_progetto/.my_bashrc.sh ");
+		// char* temp_system = malloc(1 + strlen("bash /home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi_prove/copia_progetto/.my_bashrc.sh ") + strlen(token[i]) + strlen(" 2> /dev/null"));
+		char* temp_system = malloc(1 + strlen("bash /home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi/.my_bashrc.sh ") + strlen(token[i]) + strlen(" 2> /dev/null"));
+		strcpy(temp_system , "bash /home/");
+		strcat(temp_system , getenv("USERNAME"));
+		// strcat(temp_system , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.my_bashrc.sh ");
+		strcat(temp_system , "/Desktop/Sistemi_Operativi/.my_bashrc.sh ");
 		strcat(temp_system , token[i]);
 		strcat(temp_system , " 2> /dev/null");
 		
 		if(system(temp_system) == 512){
-			char* path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi_prove/copia_progetto/.temp_bashrc"));
+			// char* path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi_prove/copia_progetto/.temp_bashrc"));
+			char* path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi/.temp_bashrc"));
 			strcpy(path , "/home/");
 			strcat(path , getenv("USERNAME"));
-			strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.temp_bashrc");
+			// strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.temp_bashrc");
+			strcat(path , "/Desktop/Sistemi_Operativi/.temp_bashrc");
 			FILE* system_replace = fopen(path , "r");
 			int k = 0;
 
