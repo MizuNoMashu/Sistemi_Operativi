@@ -18,14 +18,16 @@ void clean_term(){
 
 void location(){
 	char* cwd = malloc((300) * sizeof(char));
-	getcwd(cwd , 300);
+	if(getcwd(cwd , 300) == NULL){
+		handle_error("Error getcwd:");
+	}
 	printf("%sLocation%s:%s~%s%s\n" , "\x1B[32m", "\x1B[0m" , "\x1B[34m", cwd , "\x1B[0m");
 	free(cwd);
 }
 
 void exiting(){
 	if(exit_count <= 1){
-		kill(getpid() , SIGKILL);
+		kill(getppid() , SIGKILL);
 	}
 	else{
 		exit_count--;
@@ -48,7 +50,9 @@ void keyup(){
 		rl_ding();
 		return;
 	}
-	fseek(history , 0, SEEK_END);
+	if(fseek(history , 0, SEEK_END) == -1){
+		handle_error("Error in fseek:");
+	}
 	int i = 0;
 	up_or_down++;
 	while((up_or_down - state) != -1){
@@ -61,9 +65,13 @@ void keyup(){
 		state++;
 	}
 	state = 0;
-	fseek(history , i+2 , SEEK_END);
+	if(fseek(history , i+2 , SEEK_END) == -1){
+		handle_error("Error in fseek:");
+	}
 	char s[1000];
-	fgets(s , 1000 , history);
+	if(fgets(s , 1000 , history) == NULL){
+		handle_error("Error in fgets");
+	}
 	rl_insert_text(strtok(s,"\n"));
 }
 
@@ -89,8 +97,12 @@ void keydown(){
 		state++;
 	}
 	state = 0;
-	fseek(history , i+2 , SEEK_END);
+	if(fseek(history , i+2 , SEEK_END) == -1){
+		handle_error("Error fseek:");
+	}
 	char s[1000];
-	fgets(s , 1000 , history);
+	if(fgets(s , 1000 , history) == NULL){
+		handle_error("Error in fgets");
+	}
 	rl_insert_text(strtok(s,"\n"));
 }

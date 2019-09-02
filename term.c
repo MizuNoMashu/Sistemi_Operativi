@@ -24,8 +24,13 @@ int main(int argc, char const *argv[]){
 	// strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt");
 	strcat(path , "/Desktop/Sistemi_Operativi/.history.txt");
 	history = fopen(path , "w+");
+	if(history == NULL){
+		handle_error("Error in fopen:");
+	}
 	fprintf(history, "\n");
-	fclose(history);
+	if(fclose(history) != 0){
+		handle_error("Error fclose:");
+	}
 	free(path);
 	clean_term();
 	
@@ -39,6 +44,9 @@ int main(int argc, char const *argv[]){
 		// strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt");
 		strcat(path , "/Desktop/Sistemi_Operativi/.history.txt");
 		history = fopen(path , "a+");
+		if(history == NULL){
+			handle_error("Error fopen:");
+		}
 		free(path);
 
 		exit_count = 3;
@@ -69,7 +77,7 @@ int main(int argc, char const *argv[]){
 		strncpy(term->command , temp_command , sizeof(char)*strlen(temp_command));
 		
 		term->length_command = strlen(term->command);
-		term->num_token = get_num_token(temp_command);
+		term->num_token = get_num_token(temp_command);	
 
 		token = get_token(term->command , term->length_command , term->num_token);
 		
@@ -78,11 +86,16 @@ int main(int argc, char const *argv[]){
 				char* path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")));
 				strcpy(path , "/home/");
 				strcat(path , getenv("USERNAME"));
-				chdir(path);
+				if(chdir(path) == -1){
+					free(path);
+					handle_error("Error chdir:");
+				}
 				free(path);
 			}
 			else{
-				chdir(token[1]);
+				if(chdir(token[1]) == -1){
+					handle_error("Error chdir:");
+				}
 			}
 			if(token[2]){
 				printf("Per ora posso solo interpretare cd senza altri comandi vicino\n");
@@ -142,8 +155,7 @@ int main(int argc, char const *argv[]){
 			}
 
 			int terminal_father = wait(&status);
-			// if(terminale_padre == -1){
-			// }
+
 			kill(terminal , SIGKILL);
 		}
 

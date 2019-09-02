@@ -67,9 +67,10 @@ void custom_execvp(char** token , pid_t child , int n_pipe , int n_thread , int 
 
 		i++;
 	}
-	execvp(token[0] , token);
-	fprintf(stderr, "%s Comando non disponibile\n", token[0]);
-	return;
+	if(execvp(token[0] , token) == -1){
+		fprintf(stderr, "%s Comando non disponibile\n", token[0]);
+		return;
+	}
 }
 
 //execute select case from custom_execvp
@@ -298,7 +299,9 @@ void do_custom_execvp_pipe(char** token , int n_pipe , int pipe_fd , int last_pi
 	token_first_half[i] = NULL;
 
 	int pipefd[2];
-	pipe(pipefd);
+	if(pipe(pipefd) == -1){
+		handle_error("Error in pipe");
+	}
 
 	pid_t pid_pipe = fork();
 	if(pid_pipe == -1){
@@ -366,20 +369,32 @@ void do_custom_execvp_redirect(char** token , char* command_separator , pid_t ch
 	else if(pid_redirect == 0){
 		if(command_separator == ">"){
 			int fd1 = creat(token_second_half[0] , 0644);
-			dup2(fd1 , STDOUT_FILENO);
-			close(fd1);
+			if(dup2(fd1 , STDOUT_FILENO) == -1){
+				handle_error("Error in dup");
+			}
+			if(close(fd1) == -1){
+				handle_error("Error in close:");
+			}
 			custom_execvp(token_first_half , child , n_pipe , n_thread , still_good);
 		}
 		else if(command_separator == ">>"){
 			int fd2 = open(token_second_half[0] , O_CREAT | O_WRONLY | O_APPEND , 0644);
-			dup2(fd2 , STDOUT_FILENO);
-			close(fd2);
+			if(dup2(fd2 , STDOUT_FILENO) == -1){
+				handle_error("Error in dup");
+			}
+			if(close(fd2) == -1){
+				handle_error("Error in close:");
+			}
 			custom_execvp(token_first_half , child , n_pipe , n_thread , still_good);
 		}
 		else if(command_separator == "<"){
 			int fd3 = open(token_second_half[0] , O_RDONLY , 0);
-			dup2(fd3 , STDIN_FILENO);
-			close(fd3);
+			if(dup2(fd3 , STDIN_FILENO) == -1){
+				handle_error("Error in dup:");
+			}
+			if(close(fd3) == -1){
+				handle_error("Error in close:");
+			}
 			custom_execvp(token_first_half , child , n_pipe , n_thread , still_good);
 		}
 	}

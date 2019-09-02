@@ -19,7 +19,9 @@ char* get_command(FILE* history){
 	else{
 		strcpy(buf , cmd);
 		fprintf(history, "%s\n", cmd);
-		fclose(history);
+		if(fclose(history) != 0){
+			handle_error("Error fclose:");
+		}
 		free(cmd);
 		return strdup(buf); //return only used memory
 	}
@@ -107,17 +109,28 @@ char** get_token(char* command , int length_command , int num_token){
 			// strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.temp_bashrc");
 			strcat(path , "/Desktop/Sistemi_Operativi/.temp_bashrc");
 			FILE* system_replace = fopen(path , "r");
+			if(system_replace == NULL){
+				handle_error("Error in fopen");
+			}
 			int k = 0;
 
-			fseek(system_replace , 0L, SEEK_SET);
+			if(fseek(system_replace , 0L, SEEK_SET) == -1){
+				handle_error("Error in fseek:");
+			}
 			while(fgetc(system_replace) != '\n'){
-				fseek(system_replace , k++ , SEEK_SET);
+				if(fseek(system_replace , k++ , SEEK_SET) == -1){
+					handle_error("Error in fseek:");
+				}
 			}
 			char* system_replace_command = malloc((k)*sizeof(char));
 
-			fseek(system_replace , 0L, SEEK_SET);
+			if(fseek(system_replace , 0L, SEEK_SET) == -1){
+				handle_error("Error in fseek:");
+			}
 			fgets(system_replace_command , k , system_replace);
-			fclose(system_replace);
+			if(fclose(system_replace) != 0){
+				handle_error("Error in fclose:");
+			}
 			free(path);
 
 			char* save_system;
