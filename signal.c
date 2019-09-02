@@ -18,10 +18,7 @@ void handle_signal(int signal){
 		case SIGQUIT:
 			kill(getppid() , SIGKILL);
 			return;
-		case SIGTSTP:
-			write(1 , "\n" , 2);
-			printf("To exit from terminal you need to press ESC\n");
-			fflush(stdout);
+		case SIGWINCH:
 			return;
 	}
 }
@@ -32,19 +29,11 @@ void handle_signal_less(int signal){
 		case SIGQUIT:
 			kill(getppid() , SIGKILL);
 			return;
-		case SIGTSTP:
-			write(1 , "\n" , 2);
-			printf("To exit from terminal you need to press ESC\n");
-			fflush(stdout);
-			return;
 		case SIGINT:
 			write(1 , "\n" , 2);
 			fflush(stdout);
 			return;
 		case SIGWINCH:
-			write(1 , "\n" , 2);
-			printf("La dimensione del terminale sta cambiando\n");
-			fflush(stdout);
 			return;
 	}
 }
