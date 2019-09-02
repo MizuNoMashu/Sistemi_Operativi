@@ -60,7 +60,20 @@ int main(int argc, char const *argv[]){
 		if(sigaction( SIGINT , &sig_less , NULL) == -1){
 			handle_error("Error in SIGINT");
 		}
-		
+		if(sigaction( SIGTSTP , &sig_less , NULL) == -1){
+			handle_error("Error in SIGTSTP");
+		}
+		if(sigaction( SIGQUIT , &sig_less , NULL) == -1){
+			handle_error("Error in SIGQUIT");
+		}
+		if(sigaction( SIGWINCH , &sig_less , NULL) == -1){
+			handle_error("Error in SIGWINCH");
+		}
+		if(feof(stdin) != 0){
+			printf("ciao\n");
+			continue;
+		}
+
 		controll_keyboard();
 
 		//take command
@@ -147,11 +160,17 @@ int main(int argc, char const *argv[]){
 		else{
 
 			if(sigaction( SIGINT , &sig , NULL) == -1){
-				printf("Error SIGINT\n");
+				handle_error("Error SIGINT\n");
 			}
 
 			if(sigaction( SIGCHLD , &sig , NULL) == -1){
-				printf("Error SIGCHLD\n");
+				handle_error("Error SIGCHLD\n");
+			}
+			if(sigaction( SIGQUIT , &sig , NULL) == -1){
+				handle_error("Error in SIGQUIT");
+			}
+			if(sigaction( SIGTSTP , &sig , NULL) == -1){
+				handle_error("Error in SIGTSTP");
 			}
 
 			int terminal_father = wait(&status);
