@@ -2,9 +2,13 @@
 Shell-C
 
 **Compilazione**
+
+Creare una cartella sul Desktop chiamata Sistemi_Operativi.
+
 Per compilare è necessario installare la liberia readline:
 - sudo apt-get install libreadline6 libreadline6-dev
-- make e poi ./Term
+- Fare make e poi ./Term
+
 In caso di errore dare i permessi di esecuzione a .my_bashrc.sh
 
 **clean_term()**
