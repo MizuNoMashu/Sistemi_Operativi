@@ -11,7 +11,7 @@ int state;
 void clean_term();
 void location();
 void exiting();
-void controll_keyboard();
+void control_keyboard();
 void keyup();
 void keydown();
 #endif

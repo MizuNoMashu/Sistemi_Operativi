@@ -17,13 +17,13 @@ struct sigaction sig;
 struct sigaction sig_less;
 
 int main(int argc, char const *argv[]){
-	// char* path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt"));
-	char* path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi/.history.txt"));
-	strcpy(path , "/home/");
-	strcat(path , getenv("USERNAME"));
-	// strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt");
-	strcat(path , "/Desktop/Sistemi_Operativi/.history.txt");
-	history = fopen(path , "w+");
+	char true_path[300];
+	getcwd(true_path , 300);
+	
+	char* path_history = malloc(1 + strlen(true_path) + strlen("/.history.txt"));
+	strcpy(path_history , true_path);
+	strcat(path_history ,"/.history.txt");
+	history = fopen(path_history , "w+");
 	if(history == NULL){
 		handle_error("Error in fopen:");
 	}
@@ -31,23 +31,16 @@ int main(int argc, char const *argv[]){
 	if(fclose(history) != 0){
 		handle_error("Error fclose:");
 	}
-	free(path);
 	clean_term();
 	
 	char** token;
 	
 	while(1){
-		// path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt"));
-		path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")) + strlen("/Desktop/Sistemi_Operativi/.history.txt"));
-		strcpy(path , "/home/");
-		strcat(path , getenv("USERNAME"));
-		// strcat(path , "/Desktop/Sistemi_Operativi_prove/copia_progetto/.history.txt");
-		strcat(path , "/Desktop/Sistemi_Operativi/.history.txt");
-		history = fopen(path , "a+");
+		history = fopen(path_history , "a+");
 		if(history == NULL){
 			handle_error("Error fopen:");
 		}
-		free(path);
+		// free(path);
 
 		exit_count = 3;
 		up_or_down = 0;
@@ -69,7 +62,7 @@ int main(int argc, char const *argv[]){
 		}
 
 
-		controll_keyboard();
+		control_keyboard();
 
 		//take command
 		temp_command = get_command(history);
@@ -87,22 +80,25 @@ int main(int argc, char const *argv[]){
 		term->length_command = strlen(term->command);
 		term->num_token = get_num_token(temp_command);	
 
-		token = get_token(term->command , term->length_command , term->num_token);
+		token = get_token(term->command , term->length_command , term->num_token , true_path);
 		
 		if(strcmp(token[0] , "cd") == 0){
 			if(!token[1]){
-				char* path = malloc(1 + strlen("/home/") + strlen(getenv("USERNAME")));
-				strcpy(path , "/home/");
-				strcat(path , getenv("USERNAME"));
-				if(chdir(path) == -1){
-					free(path);
+				char* path_cd = malloc(1 + strlen(getenv("HOME")));
+				strcpy(path_cd , getenv("HOME"));
+				if(chdir(path_cd) == -1){
+					free(path_cd);
 					handle_error("Error chdir:");
 				}
-				free(path);
+				free(path_cd);
 			}
 			else{
 				if(chdir(token[1]) == -1){
-					handle_error("Error chdir:");
+					printf("%s not exist!!\n", token[1]);
+					free(temp_command);
+					destroy_term_arg(term);
+					free(token);
+					continue;
 				}
 			}
 			if(token[2]){

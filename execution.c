@@ -9,7 +9,7 @@
 #include "execution.h"
 #include "common.h"
 
-//make do_custom_execvp to controll more cases
+//make do_custom_execvp to control more cases
 void custom_execvp(char** token , pid_t child , int n_pipe , int n_thread , int still_good){
 	int i = 0;
 	char* command_separator = "";

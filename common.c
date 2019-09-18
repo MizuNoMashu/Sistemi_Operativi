@@ -35,7 +35,7 @@ void exiting(){
 	}
 }
 
-void controll_keyboard(){
+void control_keyboard(){
 	if(rl_bind_key(27 , (rl_command_func_t*) exiting) != 0){
 		handle_error("Error in ESC");
 	}
