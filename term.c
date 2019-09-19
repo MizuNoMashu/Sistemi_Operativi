@@ -53,7 +53,10 @@ int main(int argc, char const *argv[]){
 		if(sigaction( SIGINT , &sig_less , NULL) == -1){
 			handle_error("Error in SIGINT");
 		}
-		signal(SIGTSTP , SIG_IGN);
+		// signal(SIGTSTP , SIG_IGN);
+		if(sigaction( SIGTSTP , &sig_less ,NULL) == -1){
+			handle_error("Error in SIGTSTP");
+		}
 		if(sigaction( SIGQUIT , &sig_less , NULL) == -1){
 			handle_error("Error in SIGQUIT");
 		}
@@ -128,7 +131,7 @@ int main(int argc, char const *argv[]){
 		}
 		else if(terminal == 0){
 			pid_t child = getpid();
-			
+			printf("%d\n", getpid());
 			int n_thread = 0;
 			n_thread = count_ecom(token);
 			
@@ -153,7 +156,6 @@ int main(int argc, char const *argv[]){
 			if(sigaction( SIGINT , &sig , NULL) == -1){
 				handle_error("Error SIGINT\n");
 			}
-
 			if(sigaction( SIGCHLD , &sig , NULL) == -1){
 				handle_error("Error SIGCHLD\n");
 			}
@@ -163,9 +165,15 @@ int main(int argc, char const *argv[]){
 			if(sigaction( SIGWINCH , &sig , NULL) == -1){
 				handle_error("Error in SIGWINCH");
 			}
+			if(sigaction( SIGTSTP , &sig ,NULL) == -1){
+				handle_error("Error in SIGTSTP");
+			}
+			// int terminal_father = wait(&status);
+			int terminal_father = waitpid(terminal , &status , WUNTRACED | WCONTINUED);
 
-			int terminal_father = wait(&status);
-
+			if(WIFSTOPPED(status)){
+				continue;
+			}
 			kill(terminal , SIGKILL);
 		}
 

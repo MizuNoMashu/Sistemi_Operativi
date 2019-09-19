@@ -20,6 +20,11 @@ void handle_signal(int signal){
 			return;
 		case SIGWINCH:
 			return;
+		case SIGTSTP:
+			write(1 , "\n" , 2);
+			kill(getppid() , SIGSTOP);
+			fflush(stdout);
+			return;
 	}
 }
 
@@ -34,6 +39,10 @@ void handle_signal_less(int signal){
 			fflush(stdout);
 			return;
 		case SIGWINCH:
+			return;
+		case SIGTSTP:
+			write(1 , "\n" , 2);
+			fflush(stdout);
 			return;
 	}
 }
