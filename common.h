@@ -14,4 +14,6 @@ void exiting();
 void control_keyboard();
 void keyup();
 void keydown();
+void restart_process();
+void help();
 #endif

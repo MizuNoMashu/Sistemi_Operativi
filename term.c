@@ -85,6 +85,21 @@ int main(int argc, char const *argv[]){
 
 		token = get_token(term->command , term->length_command , term->num_token , true_path);
 		
+		if(!token[0]){
+			free(temp_command);
+			destroy_term_arg(term);
+			free(token);
+			continue;
+		}
+
+		if(strcmp(token[0] , "help") == 0){
+			help();
+			free(temp_command);
+			destroy_term_arg(term);
+			free(token);
+			continue;
+		}
+
 		if(strcmp(token[0] , "cd") == 0){
 			if(!token[1]){
 				char* path_cd = malloc(1 + strlen(getenv("HOME")));
@@ -112,13 +127,6 @@ int main(int argc, char const *argv[]){
 			free(token);
 			continue;
 		}
-
-		if(!token[0]){
-			free(temp_command);
-			destroy_term_arg(term);
-			free(token);
-			continue;
-		}
 		
 		free(temp_command);
 
@@ -130,8 +138,13 @@ int main(int argc, char const *argv[]){
 			handle_error("Errore nella fork");
 		}
 		else if(terminal == 0){
+
+			if(strcmp(token[0] , "resume") == 0){
+				restart_process();
+			}
+
 			pid_t child = getpid();
-			printf("%d\n", getpid());
+
 			int n_thread = 0;
 			n_thread = count_ecom(token);
 			
@@ -172,6 +185,8 @@ int main(int argc, char const *argv[]){
 			int terminal_father = waitpid(terminal , &status , WUNTRACED | WCONTINUED);
 
 			if(WIFSTOPPED(status)){
+				destroy_term_arg(term);
+				free(token);
 				continue;
 			}
 			kill(terminal , SIGKILL);

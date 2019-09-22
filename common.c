@@ -106,3 +106,27 @@ void keydown(){
 	}
 	rl_insert_text(strtok(s,"\n"));
 }
+
+void restart_process(){
+	system("ps");
+	char PID[100];
+	printf("\nInserisci l'ID del processo per riesumarlo:\n");
+	scanf("%s" , PID);
+	char* resume_me[4];
+	resume_me[0] = "kill";
+	resume_me[1] = "-SIGCONT";
+	resume_me[2] = PID;
+	resume_me[3] = NULL;
+	fflush(stdout);
+	execvp(resume_me[0] , resume_me);
+}
+
+void help(){
+	printf("\n\nBisogno di aiuto? Direi di si!!\n" 
+		"Puoi utilizzare la maggior parte dei comandi classici di un terminale.\n"
+		"Se vuoi implementare un nuovo comando basta inserirlo nel file .my_bashrc.sh\n"
+		"seguendo la struttura di uno dei comandi già implementati.\n"
+		"Se vuoi terminare un processo basta premere CTRL+Z\n"
+		"per fargli riprendere l'esecuzione basta digitare 'resume'.\n\n");
+	fflush(stdout);
+}
